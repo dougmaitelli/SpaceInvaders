@@ -16,29 +16,53 @@ int inimigos[ENEMIES_MAX][2];
 unsigned int lifes = 5;
 int points = 1;
 
-pthread_t thread[2];
-pthread_mutex_t MutexEscreve;
+pthread_mutex_t writeMutex = PTHREAD_MUTEX_INITIALIZER;
 
-void Apaga(int x, int y)
+void writeAtPosition(unsigned int x, unsigned int y, const char* text)
 {
-    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    COORD pos = {0, 0};
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	COORD pos;
+	pos.X = x;
+	pos.Y = y;
 
-    pthread_mutex_lock(&MutexEscreve);
-    pos = (COORD){x, y};
-    SetConsoleCursorPosition(hConsole, pos);
-    cout << " ";
-    pthread_mutex_unlock(&MutexEscreve);
+	pthread_mutex_lock(&writeMutex);
+	SetConsoleCursorPosition(hConsole, pos);
+	cout << text;
+	pthread_mutex_unlock(&writeMutex);
 }
 
-PVOID Tiro(PVOID z)
+void erasePosition(unsigned int x, unsigned int y)
 {
-    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    COORD pos = {0, 0};
+	writeAtPosition(x, y, " ");
+}
 
-    int x = (((int)z-(int)z%1000)/1000);
-    int y = (((int)z%1000-(int)z%10)/10);
-    int dir = (int)z%10;
+void updatePoints()
+{
+	char pointsText[15];
+	sprintf(pointsText, "Points: %5i", points);
+	writeAtPosition(0, 24, pointsText);
+}
+
+void updateLifes()
+{
+	char lifesText[10];
+	sprintf(lifesText, "Lifes: %i", lifes);
+	writeAtPosition(20, 24, lifesText);
+}
+
+struct fireBullet_arg_struct {
+    int x;
+    int y;
+    int dir;
+};
+
+void *fireBullet(void *arguments)
+{
+	struct fireBullet_arg_struct *args = (struct fireBullet_arg_struct *) arguments;
+
+    int x = args->x;
+    int y = args->y;
+    int dir = args->dir;
 
     bool quebra = false;
 
@@ -55,11 +79,7 @@ PVOID Tiro(PVOID z)
                      inimigos[i][1] = -1;
                      inimigos[i][2] = -1;
                      points += 10;
-                     pthread_mutex_lock(&MutexEscreve);
-                     pos = (COORD){0, 24};
-                     SetConsoleCursorPosition(hConsole, pos);
-                     printf("Points: %5i", points);
-                     pthread_mutex_unlock(&MutexEscreve);
+					 updatePoints();
                      quebra = true;
                      break;
                 }
@@ -70,32 +90,21 @@ PVOID Tiro(PVOID z)
                 printf("\a");
                 lifes -= 1;
                 points -= 20;
-                pthread_mutex_lock(&MutexEscreve);
-                pos = (COORD){0, 24};
-                SetConsoleCursorPosition(hConsole, pos);
-                printf("Points: %5i", points);
-                pos = (COORD){20, 24};
-                SetConsoleCursorPosition(hConsole, pos);
-                cout << "Lifes: " << lifes;
-                pthread_mutex_unlock(&MutexEscreve);
-                quebra = true;
+                updatePoints();
+                updateLifes();
+				quebra = true;
                 dead = true;
             }
         }
-        pthread_mutex_lock(&MutexEscreve);
-        pos = (COORD){x, y};
-        SetConsoleCursorPosition(hConsole, pos);
         if (quebra) {
-            cout << "O";
-            pthread_mutex_unlock(&MutexEscreve);
+        	writeAtPosition(x, y, "O");
             Sleep(30);
-            Apaga(x, y);
+            erasePosition(x, y);
             break;
         } else {
-            cout << "|";
-            pthread_mutex_unlock(&MutexEscreve);
+        	writeAtPosition(x, y, "|");
             Sleep(50);
-            Apaga(x, y);
+            erasePosition(x, y);
         }
         if (dir == 1) {
             y--;
@@ -106,28 +115,22 @@ PVOID Tiro(PVOID z)
             break;
         }
     } while(true);
+
     pthread_exit(NULL);
     return 0;
 }
 
-PVOID Inimigos(PVOID id)
+void *enemiesControl(void*)
 {
-    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    COORD pos = {0, 0};
-
     for (int i = 0; i <= ENEMIES_MAX; i++) {
         inimigos[i][1] = rand()%X_MAX;
         inimigos[i][2] = rand()%5;
-        pthread_mutex_lock(&MutexEscreve);
-        pos = (COORD){inimigos[i][1], inimigos[i][2]};
-        SetConsoleCursorPosition(hConsole, pos);
-        cout << "T";
-        pthread_mutex_unlock(&MutexEscreve);
+        writeAtPosition(inimigos[i][1], inimigos[i][2], "T");
     }
     do {
         for (int i = 0; i <= ENEMIES_MAX; i++) {
             if (inimigos[i][1] > -1) {
-                Apaga(inimigos[i][1], inimigos[i][2]);
+                erasePosition(inimigos[i][1], inimigos[i][2]);
                 inimigos[i][1] += rand()%3-1;
                 if (inimigos[i][1] < 0) {
                     inimigos[i][1] = 0;
@@ -142,78 +145,71 @@ PVOID Inimigos(PVOID id)
                 if (inimigos[i][2] >= 5) {
                     inimigos[i][2] = 4;
                 }
-                pthread_mutex_lock(&MutexEscreve);
-                pos = (COORD){inimigos[i][1], inimigos[i][2]};
-                SetConsoleCursorPosition(hConsole, pos);
-                cout << "T";
-                pthread_mutex_unlock(&MutexEscreve);
-                pthread_create(&thread[1], NULL, Tiro, (PVOID)(inimigos[i][1]*1000+inimigos[i][2]*10+2));
+                writeAtPosition(inimigos[i][1], inimigos[i][2], "T");
+                pthread_t bulletThread;
+                struct fireBullet_arg_struct args;
+				args.x = inimigos[i][1];
+				args.y = inimigos[i][2];
+				args.dir = 2;
+                pthread_create(&bulletThread, NULL, fireBullet, (void *)&args);
                 Sleep(250);
             }
         }
     } while(true);
+
     pthread_exit(NULL);
+    return 0;
 }
 
 int main()
 {
     int tecla;
 
-    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    COORD pos = {0, 0};
+    updatePoints();
+    updateLifes();
 
-    MutexEscreve = PTHREAD_MUTEX_INITIALIZER;
-
-    pthread_mutex_lock(&MutexEscreve);
-    pos = (COORD){0, 24};
-    SetConsoleCursorPosition(hConsole, pos);
-    printf("Points: %5i", points);
-    pos = (COORD){20, 24};
-    SetConsoleCursorPosition(hConsole, pos);
-    cout << "Lifes: " << lifes;
-    pthread_mutex_unlock(&MutexEscreve);
-
-    pthread_create(&thread[2], NULL, Inimigos, (PVOID)1);
+    pthread_t enemiesThread;
+    pthread_create(&enemiesThread, NULL, enemiesControl, NULL);
 
     do {
-        pthread_mutex_lock(&MutexEscreve);
-        pos = (COORD){player_x, player_y};
-        SetConsoleCursorPosition(hConsole, pos);
+    	writeAtPosition(player_x, player_y, "A");
 
-        cout << "A";
-        pthread_mutex_unlock(&MutexEscreve);
-
-        tecla = getch();
+    	tecla = getch();
 
         dead = false;
 
         switch (tecla) {
             case 75:
                 if (player_x > 0) {
-                    Apaga(player_x, player_y);
+                    erasePosition(player_x, player_y);
                     player_x -= 1;
                 }
                 break;
             case 72:
                 if (player_y > 10) {
-                    Apaga(player_x, player_y);
+                    erasePosition(player_x, player_y);
                     player_y -= 1;
                 }
                 break;
             case 77:
                 if (player_x < X_MAX-1) {
-                    Apaga(player_x, player_y);
+                    erasePosition(player_x, player_y);
                     player_x += 1;
                 }
                 break;
             case 80:
                 if (player_y < Y_MAX-1) {
-                    Apaga(player_x, player_y);
+                    erasePosition(player_x, player_y);
                     player_y += 1;
                 }
                 break;
             case 32:
-                pthread_create(&thread[1], NULL, Tiro, (PVOID)(player_x*1000+player_y*10+1));
+            	pthread_t playerBulletThread;
+            	struct fireBullet_arg_struct args;
+				args.x = player_x;
+				args.y = player_y;
+				args.dir = 1;
+                pthread_create(&playerBulletThread, NULL, fireBullet, (void *)&args);
                 break;
             default:
                 break;
@@ -222,5 +218,8 @@ int main()
             break;
         }
     } while(tecla != 27);
+
+    pthread_mutex_destroy(&writeMutex);
+
     return 0;
 }
