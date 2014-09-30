@@ -64,39 +64,41 @@ void *fireBullet(void *arguments)
     int y = args->y;
     int dir = args->dir;
 
-    bool quebra = false;
-
-    if (dir == 1) {
-        y--;
-    } else {
-        y++;
-    }
+    bool hit = false;
 
     do {
+    	if (dir == 1) {
+			y--;
+		} else {
+			y++;
+		}
+
         if (dir == 1) {
-            for (int i = 0; i <= ENEMIES_MAX; i++) {
-                if ((inimigos[i][1] == x) and (inimigos[i][2] == y)) {
+            for (int i = 0; i < ENEMIES_MAX; i++) {
+                if ((inimigos[i][0] == x) and (inimigos[i][1] == y)) {
+                     inimigos[i][0] = -1;
                      inimigos[i][1] = -1;
-                     inimigos[i][2] = -1;
                      points += 10;
 					 updatePoints();
-                     quebra = true;
+                     hit = true;
                      break;
                 }
             }
         }
+
         if (dead == false) {
             if ((player_x == x) and (player_y == y)) {
-                printf("\a");
                 lifes -= 1;
                 points -= 20;
                 updatePoints();
                 updateLifes();
-				quebra = true;
+				hit = true;
                 dead = true;
             }
         }
-        if (quebra) {
+
+        if (hit) {
+        	printf("\a");
         	writeAtPosition(x, y, "O");
             Sleep(30);
             erasePosition(x, y);
@@ -106,15 +108,7 @@ void *fireBullet(void *arguments)
             Sleep(50);
             erasePosition(x, y);
         }
-        if (dir == 1) {
-            y--;
-        } else {
-            y++;
-        }
-        if ((y > Y_MAX-1) or (y < 0)) {
-            break;
-        }
-    } while(true);
+    } while((y > 0) and (y < Y_MAX - 1));
 
     pthread_exit(NULL);
     return 0;
@@ -122,34 +116,34 @@ void *fireBullet(void *arguments)
 
 void *enemiesControl(void*)
 {
-    for (int i = 0; i <= ENEMIES_MAX; i++) {
-        inimigos[i][1] = rand()%X_MAX;
-        inimigos[i][2] = rand()%5;
-        writeAtPosition(inimigos[i][1], inimigos[i][2], "T");
+    for (int i = 0; i < ENEMIES_MAX; i++) {
+        inimigos[i][0] = rand()%X_MAX;
+        inimigos[i][1] = rand()%5;
+        writeAtPosition(inimigos[i][0], inimigos[i][1], "T");
     }
     do {
-        for (int i = 0; i <= ENEMIES_MAX; i++) {
-            if (inimigos[i][1] > -1) {
-                erasePosition(inimigos[i][1], inimigos[i][2]);
+        for (int i = 0; i < ENEMIES_MAX; i++) {
+            if (inimigos[i][0] > -1) {
+                erasePosition(inimigos[i][0], inimigos[i][1]);
+                inimigos[i][0] += rand()%3-1;
+                if (inimigos[i][0] < 0) {
+                    inimigos[i][0] = 0;
+                }
+                if (inimigos[i][0] >= X_MAX) {
+                    inimigos[i][0] = X_MAX-1;
+                }
                 inimigos[i][1] += rand()%3-1;
                 if (inimigos[i][1] < 0) {
                     inimigos[i][1] = 0;
                 }
-                if (inimigos[i][1] >= X_MAX) {
-                    inimigos[i][1] = X_MAX-1;
+                if (inimigos[i][1] >= 5) {
+                    inimigos[i][1] = 4;
                 }
-                inimigos[i][2] += rand()%3-1;
-                if (inimigos[i][2] < 0) {
-                    inimigos[i][2] = 0;
-                }
-                if (inimigos[i][2] >= 5) {
-                    inimigos[i][2] = 4;
-                }
-                writeAtPosition(inimigos[i][1], inimigos[i][2], "T");
+                writeAtPosition(inimigos[i][0], inimigos[i][1], "T");
                 pthread_t bulletThread;
                 struct fireBullet_arg_struct args;
-				args.x = inimigos[i][1];
-				args.y = inimigos[i][2];
+				args.x = inimigos[i][0];
+				args.y = inimigos[i][1];
 				args.dir = 2;
                 pthread_create(&bulletThread, NULL, fireBullet, (void *)&args);
                 Sleep(250);
@@ -163,7 +157,7 @@ void *enemiesControl(void*)
 
 int main()
 {
-    int tecla;
+    int key;
 
     updatePoints();
     updateLifes();
@@ -174,11 +168,11 @@ int main()
     do {
     	writeAtPosition(player_x, player_y, "A");
 
-    	tecla = getch();
+    	key = getch();
 
         dead = false;
 
-        switch (tecla) {
+        switch (key) {
             case 75:
                 if (player_x > 0) {
                     erasePosition(player_x, player_y);
@@ -214,10 +208,11 @@ int main()
             default:
                 break;
         }
+
         if (lifes <= 0) {
             break;
         }
-    } while(tecla != 27);
+    } while(key != 27);
 
     pthread_mutex_destroy(&writeMutex);
 
