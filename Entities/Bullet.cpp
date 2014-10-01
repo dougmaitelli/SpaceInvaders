@@ -6,7 +6,7 @@
 
 #include <pthread.h>
 
-#include "Game.h"
+#include "../Base/Game.h"
 #include "Player.h"
 #include "Enemy.h"
 

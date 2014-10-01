@@ -6,8 +6,8 @@
 
 #include <pthread.h>
 
-#include "Player.h"
-#include "Enemy.h"
+#include "../Entities/Player.h"
+#include "../Entities/Enemy.h"
 
 Game::Game() {
 	this->writeMutex = PTHREAD_MUTEX_INITIALIZER;

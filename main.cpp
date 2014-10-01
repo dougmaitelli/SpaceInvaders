@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <conio.h>
 
-#include "Game.h"
-#include "Player.h"
+#include "Base/Game.h"
+#include "Entities/Player.h"
 
 using namespace std;
 
