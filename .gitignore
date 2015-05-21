@@ -29,4 +29,6 @@
 
 .settings/
 .project
+.cproject
 /Release/
+/Default/

@@ -1,11 +1,11 @@
-#include <iostream>
-#include <stdio.h>
+#ifdef _WIN32
+#include <conio.h>
+#else
 #include <curses.h>
+#endif
 
 #include "Base/Game.h"
 #include "Entities/Player.h"
-
-using namespace std;
 
 int main()
 {
