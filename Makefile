@@ -4,7 +4,7 @@ CFLAGS  = -g
 default: space
 
 space:  main.o Game.o Bullet.o Enemy.o Player.o SpaceShip.o
-	$(CC) $(CFLAGS) -o space main.o Game.o Bullet.o Enemy.o Player.o SpaceShip.o -lcurses
+	$(CC) $(CFLAGS) -o space main.o Game.o Bullet.o Enemy.o Player.o SpaceShip.o -lpthread -lcurses
 
 main.o:  main.cpp Base/Game.h Entities/Player.h 
 	$(CC) $(CFLAGS) -c main.cpp
