@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <stdio.h>
-#include <conio.h>
+#include <curses.h>
 
 #include <pthread.h>
 

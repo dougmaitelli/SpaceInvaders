@@ -1,6 +1,6 @@
 #include <iostream>
 #include <stdio.h>
-#include <conio.h>
+#include <curses.h>
 
 #include "Base/Game.h"
 #include "Entities/Player.h"
