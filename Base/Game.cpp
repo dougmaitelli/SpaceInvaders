@@ -76,17 +76,18 @@ void Game::writeAtPosition(unsigned int x, unsigned int y, const char* text) {
 
 #ifdef _WIN32
 	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-		COORD pos;
-		pos.X = x;
-		pos.Y = y;
+	COORD pos;
+	pos.X = x;
+	pos.Y = y;
 
 
-		SetConsoleCursorPosition(hConsole, pos);
-#else
-	move(x,y);
-#endif
+	SetConsoleCursorPosition(hConsole, pos);
 
 	std::cout << text;
+#else
+	mvaddstr(y, x, text);
+	refresh();
+#endif
 
 	pthread_mutex_unlock(&writeMutex);
 }
@@ -138,7 +139,7 @@ void* Game::enemiesControl(void* context) {
 #ifdef _WIN32
                 Sleep(250);
 #else
-                sleep(250);
+                usleep(250000);
 #endif
             }
         }

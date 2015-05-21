@@ -8,7 +8,7 @@ class Enemy;
 
 #define X_MAX 80
 #define Y_MAX 24
-#define ENEMIES_MAX 30
+#define ENEMIES_MAX 50
 
 class Game {
 private:

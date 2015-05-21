@@ -61,7 +61,7 @@ void* Bullet::bulletExecution(void* context) {
                 game->changePoints(-20);
                 game->updatePoints();
                 game->updateLifes();
-				hit = true;
+		hit = true;
                 player->setDead(true);
             }
         }
@@ -72,7 +72,7 @@ void* Bullet::bulletExecution(void* context) {
 #ifdef _WIN32
             Sleep(30);
 #else
-            sleep(30);
+            usleep(30000);
 #endif
             game->erasePosition(c->bullet_x, c->bullet_y);
             break;
@@ -81,7 +81,7 @@ void* Bullet::bulletExecution(void* context) {
 #ifdef _WIN32
             Sleep(50);
 #else
-            sleep(50);
+            usleep(50000);
 #endif
             game->erasePosition(c->bullet_x, c->bullet_y);
         }
