@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <pthread.h>
 
@@ -133,7 +134,11 @@ void* Game::enemiesControl(void* context) {
                 }
                 c->writeAtPosition(c->enemies[i]->getX(), c->enemies[i]->getY(), "T");
                 c->enemies[i]->fireBullet();
+#ifdef _WIN32
                 Sleep(250);
+#else
+                sleep(250);
+#endif
             }
         }
     } while(true);
