@@ -1,8 +1,13 @@
 #include "Game.h"
 
+#ifdef _WIN32
+#include <conio.h>
+#else
+#include <curses.h>
+#endif
+
 #include <iostream>
 #include <stdio.h>
-#include <conio.h>
 
 #include <pthread.h>
 
@@ -65,14 +70,22 @@ void Game::changePoints(int points) {
 }
 
 void Game::writeAtPosition(unsigned int x, unsigned int y, const char* text) {
-	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-	COORD pos;
-	pos.X = x;
-	pos.Y = y;
-
 	pthread_mutex_lock(&writeMutex);
-	SetConsoleCursorPosition(hConsole, pos);
+
+#ifdef _WIN32
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+		COORD pos;
+		pos.X = x;
+		pos.Y = y;
+
+
+		SetConsoleCursorPosition(hConsole, pos);
+#else
+	move(x,y);
+#endif
+
 	std::cout << text;
+
 	pthread_mutex_unlock(&writeMutex);
 }
 
