@@ -7,6 +7,7 @@
 #include <curses.h>
 #endif
 
+#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -14,8 +15,6 @@
 
 #include "../Entities/Player.h"
 #include "../Entities/Enemy.h"
-
-using namespace std;
 
 Game::Game() {
 	this->writeMutex = PTHREAD_MUTEX_INITIALIZER;
