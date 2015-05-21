@@ -6,12 +6,19 @@ class Enemy;
 
 #include <pthread.h>
 
+#ifdef _WIN32
 #define X_MAX 80
 #define Y_MAX 24
-#define ENEMIES_MAX 50
+#endif
+
+#define ENEMIES_MAX 500
 
 class Game {
 private:
+	unsigned int max_x;
+	unsigned int max_y;
+	unsigned int maxEnemies;
+
 	Player* player;
 	Enemy* enemies[ENEMIES_MAX];
 
@@ -20,8 +27,11 @@ private:
 
 	pthread_mutex_t writeMutex;
 public:
-	Game();
+	Game(unsigned int, unsigned int);
 	virtual ~Game();
+	unsigned int getMaxX();
+	unsigned int getMaxY();
+	unsigned int getMaxEnemies();
 	Player* getPlayer();
 	Enemy** getEnemies();
 	unsigned int getEnemiesCount();

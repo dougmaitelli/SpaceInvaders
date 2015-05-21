@@ -21,9 +21,12 @@ int main()
         cbreak();
         noecho();
         curs_set(0);
+
+	int X_MAX, Y_MAX;
+	getmaxyx(stdscr, Y_MAX, X_MAX);
 #endif
 
-	Game* game = new Game();
+	Game* game = new Game(X_MAX, Y_MAX);
 	Player* player = game->getPlayer();
 
 	int key;
@@ -49,12 +52,12 @@ int main()
 				}
 				break;
 			case KEY_RIGHT:
-				if (player->getX() < X_MAX-1) {
+				if (player->getX() < X_MAX - 1) {
 					player->moveX(1);
 				}
 				break;
 			case KEY_DOWN:
-				if (player->getY() < Y_MAX-1) {
+				if (player->getY() < Y_MAX - 2) {
 					player->moveY(1);
 				}
 				break;

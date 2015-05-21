@@ -16,13 +16,17 @@
 #include "../Entities/Player.h"
 #include "../Entities/Enemy.h"
 
-Game::Game() {
+Game::Game(unsigned int max_x, unsigned int max_y) {
 	this->writeMutex = PTHREAD_MUTEX_INITIALIZER;
+
+	this->max_x = max_x;
+	this->max_y = max_y;
+	this->maxEnemies = this->max_x * 5 / 10;
 
 	this->lifes = 5;
 	this->points = 0;
 
-	player = new Player(this, 40, 23);
+	player = new Player(this, this->max_x / 2, this->max_y - 2);
 
 	updatePoints();
 	updateLifes();
@@ -33,6 +37,18 @@ Game::Game() {
 
 Game::~Game() {
 	pthread_mutex_destroy(&writeMutex);
+}
+
+unsigned int Game::getMaxX() {
+	return this->max_x;
+}
+
+unsigned int Game::getMaxY() {
+	return this->max_y;
+}
+
+unsigned int Game::getMaxEnemies() {
+	return this->maxEnemies;
 }
 
 Player* Game::getPlayer() {
@@ -99,35 +115,35 @@ void Game::erasePosition(unsigned int x, unsigned int y) {
 void Game::updatePoints() {
 	char pointsText[15];
 	sprintf(pointsText, "Points: %5i", points);
-	writeAtPosition(0, 24, pointsText);
+	writeAtPosition(0, this->max_y - 1, pointsText);
 }
 
 void Game::updateLifes() {
 	char lifesText[10];
 	sprintf(lifesText, "Lifes: %i", lifes);
-	writeAtPosition(20, 24, lifesText);
+	writeAtPosition(20, this->max_y - 1, lifesText);
 }
 
 void* Game::enemiesControl(void* context) {
 	Game* c = (Game*) context;
 
-    for (int i = 0; i < ENEMIES_MAX; i++) {
-    	c->enemies[i] = new Enemy(c, rand()%X_MAX, rand()%5);
+    for (int i = 0; i < c->maxEnemies; i++) {
+    	c->enemies[i] = new Enemy(c, rand() % c->max_x, rand() % 5);
     	c-> writeAtPosition(c->enemies[i]->getX(), c->enemies[i]->getY(), "T");
     }
 
     do {
-        for (int i = 0; i < ENEMIES_MAX; i++) {
+        for (int i = 0; i < c->maxEnemies; i++) {
             if (!c->enemies[i]->isDead()) {
             	c->erasePosition(c->enemies[i]->getX(), c->enemies[i]->getY());
-            	c->enemies[i]->moveX(rand()%3-1);
+            	c->enemies[i]->moveX(rand() % 3 - 1);
                 if (c->enemies[i]->getX() < 0) {
                 	c->enemies[i]->setX(0);
                 }
-                if (c->enemies[i]->getX() >= X_MAX) {
-                	c->enemies[i]->setX(X_MAX-1);
+                if (c->enemies[i]->getX() >= c->max_x) {
+                	c->enemies[i]->setX(c->max_x - 1);
                 }
-                c->enemies[i]->moveY(rand()%3-1);
+                c->enemies[i]->moveY(rand() % 3 - 1);
                 if (c->enemies[i]->getY() < 0) {
                 	c->enemies[i]->setY(0);
                 }

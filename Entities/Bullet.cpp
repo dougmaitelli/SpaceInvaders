@@ -35,14 +35,14 @@ void* Bullet::bulletExecution(void* context) {
     do {
     	if (c->bullet_dir == 1) {
     		c->bullet_y--;
-		} else {
-			c->bullet_y++;
-		}
+	} else {
+		c->bullet_y++;
+	}
 
         if (c->bullet_dir == 1) {
-        	Enemy** enemies = game->getEnemies();
+		Enemy** enemies = game->getEnemies();
 
-            for (unsigned int i = 0; i < game->getEnemiesCount(); i++) {
+            for (unsigned int i = 0; i < game->getMaxEnemies(); i++) {
                 if (!enemies[i]->isDead() and enemies[i]->getX() == c->bullet_x and enemies[i]->getY() == c->bullet_y) {
                      enemies[i]->setDead(true);
                      game->changePoints(10);
@@ -85,7 +85,7 @@ void* Bullet::bulletExecution(void* context) {
 #endif
             game->erasePosition(c->bullet_x, c->bullet_y);
         }
-    } while((c->bullet_y > 0) and (c->bullet_y < 24 - 1));
+    } while((c->bullet_y > 0) and (c->bullet_y < game->getMaxY() - 2));
 
     pthread_exit(NULL);
     return 0;
