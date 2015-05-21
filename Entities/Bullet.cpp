@@ -4,10 +4,8 @@
 #include <conio.h>
 #else
 #include <unistd.h>
-#include <curses.h>
 #endif
 
-#include <iostream>
 #include <stdio.h>
 
 #include <pthread.h>
@@ -69,14 +67,22 @@ void* Bullet::bulletExecution(void* context) {
         }
 
         if (hit) {
-        	//printf("\a");
+        	printf("\a");
         	game->writeAtPosition(c->bullet_x, c->bullet_y, "O");
-            //Sleep(30);
+#ifdef _WIN32
+            Sleep(30);
+#else
+            sleep(30);
+#endif
             game->erasePosition(c->bullet_x, c->bullet_y);
             break;
         } else {
         	game->writeAtPosition(c->bullet_x, c->bullet_y, "|");
-            //Sleep(50);
+#ifdef _WIN32
+            Sleep(50);
+#else
+            sleep(50);
+#endif
             game->erasePosition(c->bullet_x, c->bullet_y);
         }
     } while((c->bullet_y > 0) and (c->bullet_y < 24 - 1));

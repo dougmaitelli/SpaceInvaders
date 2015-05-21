@@ -3,10 +3,10 @@
 #ifdef _WIN32
 #include <conio.h>
 #else
+#include <unistd.h>
 #include <curses.h>
 #endif
 
-#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 
