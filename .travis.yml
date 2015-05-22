@@ -29,3 +29,7 @@ deploy:
 branches:
   except:
     - /^*-v[0-9]/
+
+env:
+  global:
+    secure: "e58OqdTEmg7Xg61ko5PKzcuPlARRbPki8ix1dtdb/Qyf8heMFusV//nAVmdj89nNGQLxPcLZhz6383UTKCUSwbFJoHLOhRg+GxSON5y/As3M3hypHIM7p0cIyyoXZ6sSn0A8g89C2GdJYSSUf2FCbnw57WXhSk1hhB+M/LLGHI2aAyV8p2WeJXRzfNnIlnvgfo19G7WJ1cQRJUJNP8LBA3r97UuMv9kYYKs6869sN2kNUOy5wIVtntLosaL+Ge7C/4tQxMD4Wxb36G6wOjVbXgtyRzvDRqn2Hx3toghRf3A/og9yMpv+Xnhdx2ZBg7MP/K0VD1D/hvpcygAOg9YoP+hLm6CwNa+LU2Xo7X/FHaRMU2ciQZmnShKmBu71XpJAvWRs8cH/gxonuOsfMCqsvt11zx9pq8ICbBPLg4AbdtbFWuc5gpqQQW1e9y5uM7hZ3gBO4jugcDZTI+3/YTkMHOhDHoIvMDlzMSXstLeCHVAPrE5Rt1MrSXHhPqmt85/8uaGnCP1C6iSKKypiCKgKwgAGUswuI1MkYJmrRmKB/VvkzkvXwsp+BjyyuVfw7pPiwB2CqZdtQZkE3JqXhsQlsNkMcYNIhhsq0IIPQGgZ3OrPR/Z/S4zJp75pDEbZyhMn8KWvPOYD+XwSBDoqMNwg1QqyhhjXNpkadznyodQ4bN4="
