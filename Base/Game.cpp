@@ -55,12 +55,12 @@ Player* Game::getPlayer() {
 	return this->player;
 }
 
-Enemy** Game::getEnemies() {
+std::vector<Enemy*> Game::getEnemies() {
 	return this->enemies;
 }
 
 unsigned int Game::getEnemiesCount() {
-	return sizeof(enemies) / sizeof(*enemies);
+	return this->enemies.size();
 }
 
 unsigned int Game::getLifes() {
@@ -128,12 +128,12 @@ void* Game::enemiesControl(void* context) {
 	Game* c = (Game*) context;
 
     for (int i = 0; i < c->maxEnemies; i++) {
-    	c->enemies[i] = new Enemy(c, rand() % c->max_x, rand() % 5);
+    	c->enemies.push_back(new Enemy(c, rand() % c->max_x, rand() % 5));
     	c-> writeAtPosition(c->enemies[i]->getX(), c->enemies[i]->getY(), "T");
     }
 
     do {
-        for (int i = 0; i < c->maxEnemies; i++) {
+        for (int i = 0; i < c->getEnemiesCount(); i++) {
             if (!c->enemies[i]->isDead()) {
             	c->erasePosition(c->enemies[i]->getX(), c->enemies[i]->getY());
             	c->enemies[i]->moveX(rand() % 3 - 1);

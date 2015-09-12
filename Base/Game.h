@@ -5,13 +5,12 @@ class Player;
 class Enemy;
 
 #include <pthread.h>
+#include <vector>
 
 #ifdef _WIN32
 #define X_MAX 80
 #define Y_MAX 24
 #endif
-
-#define ENEMIES_MAX 500
 
 class Game {
 private:
@@ -20,7 +19,7 @@ private:
 	unsigned int maxEnemies;
 
 	Player* player;
-	Enemy* enemies[ENEMIES_MAX];
+	std::vector<Enemy*> enemies;
 
 	unsigned int lifes;
 	int points;
@@ -33,7 +32,7 @@ public:
 	unsigned int getMaxY();
 	unsigned int getMaxEnemies();
 	Player* getPlayer();
-	Enemy** getEnemies();
+	std::vector<Enemy*> getEnemies();
 	unsigned int getEnemiesCount();
 	unsigned int getLifes();
 	void setLifes(int);

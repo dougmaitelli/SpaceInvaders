@@ -9,6 +9,7 @@
 #include <stdio.h>
 
 #include <pthread.h>
+#include <vector>
 
 #include "../Base/Game.h"
 #include "Player.h"
@@ -40,11 +41,12 @@ void* Bullet::bulletExecution(void* context) {
 	}
 
         if (c->bullet_dir == 1) {
-		Enemy** enemies = game->getEnemies();
+		std::vector<Enemy*> enemies = game->getEnemies();
 
-            for (unsigned int i = 0; i < game->getMaxEnemies(); i++) {
+            for (unsigned int i = 0; i < game->getEnemiesCount(); i++) {
                 if (!enemies[i]->isDead() and enemies[i]->getX() == c->bullet_x and enemies[i]->getY() == c->bullet_y) {
                      enemies[i]->setDead(true);
+			delete enemies[i];
                      game->changePoints(10);
                      game->updatePoints();
                      hit = true;
