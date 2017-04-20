@@ -6,12 +6,6 @@ compiler:
 script:
   - make
 
-before_deploy:
-  - git config --global user.email "builds@travis-ci.com"
-  - git config --global user.name "Travis CI"
-  - export GIT_TAG=$TRAVIS_BRANCH-0.1.$TRAVIS_BUILD_NUMBER
-  - git tag $GIT_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
-
 deploy:
   provider: releases
   api_key: $GITPERM
@@ -21,7 +15,3 @@ deploy:
   skip_cleanup: true
   on:
     tags: true
-
-branches:
-  except:
-    - /^*-v[0-9]/
